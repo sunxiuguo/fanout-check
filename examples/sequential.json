@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "clock": "monotonic",
+  "spans": [
+    {
+      "id": "1",
+      "name": "docs",
+      "group": "research",
+      "start_ns": 0,
+      "end_ns": 100000000,
+      "status": "ok"
+    },
+    {
+      "id": "2",
+      "name": "code",
+      "group": "research",
+      "start_ns": 100000000,
+      "end_ns": 180000000,
+      "status": "ok"
+    },
+    {
+      "id": "3",
+      "name": "tests",
+      "group": "research",
+      "start_ns": 180000000,
+      "end_ns": 270000000,
+      "status": "ok"
+    }
+  ]
+}

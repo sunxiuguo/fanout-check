@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "name": "research",
+      "members": [
+        "docs",
+        "code",
+        "tests"
+      ],
+      "min_peak": 3,
+      "min_overlap_ratio": 0.8,
+      "max_launch_skew_ms": 10
+    }
+  ]
+}

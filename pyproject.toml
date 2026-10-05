@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fanout-check"
+version = "0.1.0"
+description = "Offline regression checks for actual agent and tool-call concurrency"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "sunxiuguo"}]
+keywords = ["agents", "asyncio", "tracing", "concurrency", "testing"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
+
+[project.scripts]
+fanout-check = "fanout_check.cli:main"
+
+[project.urls]
+Repository = "https://github.com/sunxiuguo/fanout-check"
+Issues = "https://github.com/sunxiuguo/fanout-check/issues"
+
+[tool.setuptools]
+packages = ["fanout_check"]
