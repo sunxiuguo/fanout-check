@@ -30,6 +30,10 @@ python -m unittest discover -s tests -v
 
 The demo actually runs three blocking tasks and three cooperative tasks, records their intervals, and checks the expected failure and passing control. It uses synthetic work and no agent SDK.
 
+For an actual SDK component comparison, see the optional
+[Agents SDK regression example](examples/agents-sdk-regression/). It compares
+historical and fixed releases without a model or Runner; the core has no new dependencies.
+
 Run a deterministic fixture:
 
 ```sh
