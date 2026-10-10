@@ -19,7 +19,9 @@ class ReplayPackageTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        # macOS's system temp path traverses /var -> /private/var. Use its
+        # physical path so fixtures comply with the unchanged no-symlink policy.
+        self.root = Path(self.temporary.name).resolve()
 
     def command(self, *args, cwd=REPO, input=None):
         return subprocess.run(args, cwd=cwd, input=input, capture_output=True, text=True, timeout=30)
@@ -149,6 +151,30 @@ class ReplayPackageTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn('symlink', result.stderr)
         self.assertFalse(archive.exists())
+
+    def test_system_temp_alias_uses_physical_workspace_without_relaxing_output_policy(self):
+        alias = self.root / 'system-temp-alias'
+        try:
+            alias.symlink_to(self.root, target_is_directory=True)
+        except OSError as error:
+            self.skipTest('symlink creation unavailable: ' + str(error))
+        # Explicit symlinked output remains rejected by the builder.
+        rejected = self.command(sys.executable, '-I', '-B', str(REPO / RELATIVE / 'build.py'),
+                                '--output', str(alias / 'unsafe.tar.gz'))
+        self.assertEqual(rejected.returncode, 2)
+        self.assertIn('symlink in output path', rejected.stderr)
+        self.assertFalse((self.root / 'unsafe.tar.gz').exists())
+        # The same system temp alias is harmless when the test fixture chooses
+        # its physical owned directory before invoking any packaging command.
+        code = ('import sys,tempfile,unittest;sys.path.insert(0,sys.argv[1]);'
+                'tempfile.tempdir=sys.argv[2];'
+                'suite=unittest.defaultTestLoader.loadTestsFromName('
+                '"test_replay_package.ReplayPackageTests.test_deterministic_build_and_baseline_preservation");'
+                'result=unittest.TextTestRunner(verbosity=2).run(suite);'
+                'sys.exit(not result.wasSuccessful())')
+        accepted = self.command(sys.executable, '-I', '-B', '-c', code,
+                                str(REPO / 'tests'), str(alias))
+        self.assertEqual(accepted.returncode, 0, accepted.stderr)
 
     def test_generated_replay_rejects_rehashed_source_with_unchanged_script(self):
         result, archive = self.build()
