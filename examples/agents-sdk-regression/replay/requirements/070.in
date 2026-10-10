@@ -1,0 +1,2 @@
+-c ../../constraints-historical.txt
+openai-agents==0.7.0

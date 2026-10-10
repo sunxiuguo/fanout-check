@@ -1,0 +1,408 @@
+{
+  "version": 1,
+  "source_commit": "e03b9cf6eeb701505f2e714b4ac943ff3c67bf19",
+  "cases": [
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 0,
+      "case": "sync_parallel",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 0,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 0,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 0,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 0,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 1,
+      "case": "sync_parallel",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 1,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 1,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 1,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 1,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 2,
+      "case": "sync_parallel",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 2,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 2,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 2,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.7.0",
+      "repeat": 2,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 0,
+      "case": "sync_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 0,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 0,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 0,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 0,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 1,
+      "case": "sync_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 1,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 1,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 1,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 1,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 2,
+      "case": "sync_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 2,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 2,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 2,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.8.0",
+      "repeat": 2,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 0,
+      "case": "sync_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 0,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 0,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 0,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 0,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 1,
+      "case": "sync_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 1,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 1,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 1,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 1,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 2,
+      "case": "sync_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 2,
+      "case": "async_parallel",
+      "status": "pass",
+      "peak": 3,
+      "finding_codes": []
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 2,
+      "case": "async_sequential",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 2,
+      "case": "async_blocking",
+      "status": "fail",
+      "peak": 1,
+      "finding_codes": [
+        "LIMIT_VIOLATION"
+      ]
+    },
+    {
+      "sdk_version": "0.23.1",
+      "repeat": 2,
+      "case": "capped_inside",
+      "status": "pass",
+      "peak": 2,
+      "finding_codes": []
+    }
+  ]
+}
