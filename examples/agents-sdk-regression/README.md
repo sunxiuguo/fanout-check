@@ -5,6 +5,10 @@ callbacks under `asyncio.gather`. It shows what an application's timing contract
 can catch. It does not use a model, API key, `Runner`, hosted service or real data,
 and does not add dependencies to fanout-check itself.
 
+For a maintained archive with exact synthetic inputs, hashed dependency locks
+and one clean-workspace verification command, see the optional
+[portable replay handoff](replay/). The explicit comparisons below still work.
+
 The motivating [SDK issue #2386](https://github.com/openai/openai-agents-python/issues/2386)
 is already fixed by [PR #2387](https://github.com/openai/openai-agents-python/pull/2387),
 which includes native regression tests. This is historical/component evidence,

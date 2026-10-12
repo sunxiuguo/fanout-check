@@ -1,0 +1,242 @@
+"""Rebuild this one reviewed synthetic example; Python standard library only."""
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path, PurePosixPath
+import platform
+import re
+import stat
+import subprocess
+import sys
+import time
+
+COMMIT = "@SOURCE_COMMIT@"
+ORACLE_COMMIT = "e03b9cf6eeb701505f2e714b4ac943ff3c67bf19"
+# A reviewed-script consistency anchor. Authenticate the archive externally before
+# running this script: changing this script can change this anchor too.
+MANIFEST_SHA256 = "@MANIFEST_SHA256@"
+VERSIONS = (("070", "0.7.0"), ("080", "0.8.0"), ("0231", "0.23.1"))
+ROOT = Path(__file__).absolute().parent
+
+
+class ReplayError(Exception):
+    pass
+
+
+def canonical_name(name):
+    if (not isinstance(name, str) or not name or name == "." or "\\" in name
+            or PurePosixPath(name).is_absolute() or ".." in PurePosixPath(name).parts
+            or PurePosixPath(name).as_posix() != name):
+        raise ReplayError("unsafe delivery path")
+    return name
+
+
+def integrity(root):
+    # Inspect directory entries without following links, before reading payloads.
+    for parent in (root, *root.parents):
+        if parent.is_symlink():
+            raise ReplayError("symlink in delivery path")
+    actual = set()
+    for folder, dirs, files in os.walk(root, followlinks=False):
+        for name in (*dirs, *files):
+            if (Path(folder) / name).is_symlink():
+                raise ReplayError("symlink in delivery: " + str((Path(folder) / name).relative_to(root)))
+        for name in files:
+            info = (Path(folder) / name).lstat()
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+                raise ReplayError("non-regular or hard-linked delivery file")
+        actual.update((Path(folder) / name).relative_to(root).as_posix() for name in files)
+    raw_manifest = (root / "manifest.json").read_bytes()
+    manifest = json.loads(raw_manifest)
+    if manifest["source_commit"] != COMMIT:
+        raise ReplayError(f"wrong source version: expected {COMMIT}")
+    if hashlib.sha256(raw_manifest).hexdigest() != MANIFEST_SHA256:
+        raise ReplayError("changed manifest: does not match the reviewed replay script")
+    protected = set(manifest["sha256"])
+    scope = {"source", "inputs", "expected", "requirements", "tests"}
+    scoped_actual = {name for name in actual if name.split("/")[0] in scope}
+    if scoped_actual != {name for name in protected if name.split("/")[0] in scope}:
+        raise ReplayError("undeclared or missing file in execution/input directories")
+    allowed_root = {"README.md", "replay.py", "manifest.json", "SHA256SUMS", "TEST_REPORT.md"}
+    for name in actual:
+        if ("/" not in name and name not in allowed_root) or ("/" in name and name.split("/")[0] not in scope | {"evidence"}):
+            raise ReplayError("undeclared delivery file: " + name)
+    for name, digest in manifest["sha256"].items():
+        canonical_name(name)
+        path = root / name
+        if (not path.is_file()
+                or not path.resolve().is_relative_to(root.resolve())):
+            raise ReplayError(f"missing or unsafe delivery file: {name}")
+        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            raise ReplayError(f"changed delivery file: {name}")
+    # Supplementary evidence is inert and never an execution source. This inventory
+    # detects undeclared files; it is caller-editable consistency metadata, not auth.
+    inventory = {}
+    for line in (root / "SHA256SUMS").read_text().splitlines():
+        if not re.fullmatch(r"[0-9a-f]{64}  .+", line):
+            raise ReplayError("invalid SHA256SUMS inventory")
+        digest, name = line.split("  ", 1)
+        canonical_name(name)
+        if name in inventory:
+            raise ReplayError("duplicate inventory path")
+        inventory[name] = digest
+    if set(inventory) | {"SHA256SUMS"} != actual:
+        raise ReplayError("undeclared or missing delivery file")
+    for name, digest in inventory.items():
+        if hashlib.sha256((root / name).read_bytes()).hexdigest() != digest:
+            raise ReplayError("changed inventory file: " + name)
+
+
+def prerequisites():
+    if sys.version_info[:3] != (3, 12, 14):
+        raise ReplayError("requires CPython 3.12.14 with venv, ensurepip and SSL")
+    if platform.python_implementation() != "CPython" or sys.platform != "linux":
+        raise ReplayError("this delivery supports Linux CPython 3.12.14")
+    if platform.machine() not in ("x86_64", "AMD64"):
+        raise ReplayError("this delivery was verified on Linux x86_64 only")
+    for module in ("venv", "ensurepip", "ssl"):
+        if importlib.util.find_spec(module) is None:
+            raise ReplayError(f"missing prerequisite: Python module {module}")
+    try:
+        import ssl
+        ssl.create_default_context()
+    except (ImportError, OSError) as exc:
+        raise ReplayError("missing working Python SSL support / CA certificates") from exc
+
+
+def locked_versions(path):
+    return dict(re.findall(r"^([A-Za-z0-9_.-]+)==([^\s\\]+)", path.read_text(), re.M))
+
+
+def check_dependencies(python, lock, env):
+    # Metadata lookup only: do not import or run dependency-provided commands.
+    code = """import importlib.metadata as m,json,sys
+expected=json.loads(sys.argv[1]); problems=[]
+for name,version in expected.items():
+    try: actual=m.version(name)
+    except m.PackageNotFoundError: problems.append('missing dependency: '+name); continue
+    if actual!=version: problems.append(name+': expected '+version+', got '+actual)
+print(json.dumps(problems)); sys.exit(bool(problems))
+"""
+    try:
+        p = subprocess.run([str(python), "-I", "-B", "-c", code, json.dumps(locked_versions(lock))],
+                           env=env, capture_output=True, text=True, timeout=30)
+    except subprocess.TimeoutExpired:
+        raise ReplayError("dependency metadata check exceeded its supported timeout")
+    if p.returncode:
+        raise ReplayError("dependency verification failed: " + p.stdout.strip())
+
+
+def summarize(results):
+    rows = []
+    for result in results:
+        if result["network_attempts"] != []:
+            raise ReplayError("the synthetic probe attempted network access")
+        for row in result["cases"]:
+            report = row["report"]
+            rows.append({"sdk_version": result["sdk_version"], "repeat": row["repeat"],
+                         "case": row["case"], "status": report["status"],
+                         "peak": report["groups"][0]["metrics"]["peak"],
+                         "finding_codes": [f["code"] for f in report["findings"]]})
+    return {"version": 1, "source_commit": ORACLE_COMMIT, "cases": rows}
+
+
+def main():
+    started = time.perf_counter()
+    prerequisites()
+    work, output = ROOT / ".replay", ROOT / "output"
+    if work.exists() or output.exists():
+        raise ReplayError("use a fresh extracted delivery: .replay or output already exists")
+    integrity(ROOT)
+    work.mkdir(mode=0o700)
+    home = work / "home"
+    home.mkdir(mode=0o700)
+    staged = work / "output"
+    staged.mkdir()
+    clean = {"PATH": "/usr/bin:/bin", "HOME": str(home),
+             "OPENAI_AGENTS_DISABLE_TRACING": "1", "PYTHONDONTWRITEBYTECODE": "1"}
+    install_env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(home),
+                   "PIP_CONFIG_FILE": os.devnull, "PYTHONDONTWRITEBYTECODE": "1"}
+    for key in ("HTTPS_PROXY", "HTTP_PROXY", "NO_PROXY", "https_proxy", "http_proxy", "no_proxy",
+                "SSL_CERT_FILE", "REQUESTS_CA_BUNDLE", "CURL_CA_BUNDLE"):
+        if key in os.environ:
+            install_env[key] = os.environ[key]
+    timings = []
+
+    def run(command, label, env, destination=None, cwd=None):
+        tick = time.perf_counter()
+        try:
+            p = subprocess.run([str(arg) for arg in command], env=env, cwd=cwd,
+                               capture_output=True, text=True,
+                               timeout=300 if label.startswith("install-") else 120)
+        except subprocess.TimeoutExpired:
+            raise ReplayError(f"{label} exceeded its supported timeout")
+        (work / f"{label}.log").write_text(p.stderr + (p.stdout if destination is None else ""))
+        if destination is not None:
+            destination.write_text(p.stdout)
+        timings.append({"step": label, "seconds": round(time.perf_counter() - tick, 3),
+                        "exit": p.returncode})
+        return p
+
+    results = []
+    for suffix, version in VERSIONS:
+        print(f"Rebuilding SDK {version} ...", flush=True)
+        venv = work / f"venv-{suffix}"
+        p = run([sys.executable, "-I", "-B", "-m", "venv", venv], f"venv-{suffix}", install_env)
+        if p.returncode:
+            raise ReplayError(f"venv setup failed; inspect .replay/venv-{suffix}.log")
+        python = venv / "bin" / "python"
+        lock = ROOT / "requirements" / f"{suffix}.txt"
+        p = run([python, "-I", "-B", "-m", "pip", "--isolated", "install", "--no-input", "--no-cache-dir",
+                 "--disable-pip-version-check", "--index-url", "https://pypi.org/simple",
+                 "--only-binary=:all:", "--require-hashes", "--no-deps", "-r", lock],
+                f"install-{suffix}", install_env)
+        if p.returncode:
+            raise ReplayError(f"dependency installation failed; inspect .replay/install-{suffix}.log; "
+                              "registry access and any required proxy/CA settings are prerequisites")
+        check_dependencies(python, lock, clean)
+        p = run([python, "-I", "-B", ROOT / "source/examples/agents-sdk-regression/probe.py"],
+                f"probe-{suffix}", clean, staged / f"result-{suffix}.json")
+        if p.returncode:
+            raise ReplayError(f"SDK {version} probe failed; inspect .replay/probe-{suffix}.log")
+        results.append(json.loads(p.stdout))
+    summary = summarize(results)
+    expected = json.loads((ROOT / "expected/summary.json").read_text())
+    if summary != expected:
+        raise ReplayError("live status/peak/finding results differ from the recorded 45-case oracle")
+    frozen = staged / "frozen-reports"
+    frozen.mkdir()
+    count = 0
+    for trace in sorted((ROOT / "inputs").glob("*.trace.json")):
+        name = trace.name.removesuffix(".trace.json")
+        # Isolate Python's default search path, then add only the verified source.
+        cli = "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('fanout_check',run_name='__main__')"
+        p = run([sys.executable, "-I", "-B", "-c", cli, ROOT / "source", trace, "--contract",
+                 ROOT / "inputs" / f"{name}.contract.json", "--format", "json"],
+                f"cli-{name}", clean, frozen / f"{name}.json", ROOT / "source")
+        expected_report = json.loads((ROOT / "expected" / f"{name}.report.json").read_text())
+        if p.returncode != {"pass": 0, "fail": 1, "inconclusive": 2}[expected_report["status"]]:
+            raise ReplayError(f"wrong CLI exit status for {name}")
+        if json.loads(p.stdout) != expected_report:
+            raise ReplayError(f"exact frozen CLI report differs: {name}")
+        count += 1
+    if count != 15:
+        raise ReplayError("expected exactly 15 frozen trace/contract/report comparisons")
+    (staged / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (staged / "verification.json").write_text(json.dumps({
+        "source_commit": COMMIT, "live_cases_matched": 45, "frozen_reports_matched": count,
+        "python": platform.python_version(), "platform": platform.platform(),
+        "seconds": round(time.perf_counter() - started, 3), "steps": timings,
+    }, indent=2) + "\n")
+    staged.rename(output)
+    print(f"VERIFIED: 45/45 live cases; 15/15 exact frozen CLI reports; source {COMMIT}")
+    print("Outputs: output/summary.json, output/result-*.json, output/frozen-reports/, output/verification.json")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (ReplayError, OSError, ValueError, KeyError) as exc:
+        print(f"REPLAY FAILED: {exc}", file=sys.stderr)
+        sys.exit(2)
