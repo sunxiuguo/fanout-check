@@ -24,9 +24,12 @@ root README, license and project metadata; it is a selected runnable source set.
 
 The command writes `dist/agents-sdk-replay/fanout-check-replay.tar.gz` and prints
 its exact SHA-256, size and source commit. `--output PATH.tar.gz` chooses another
-destination. Identical selected source and replay files produce identical archive
-bytes: member order, ownership, modes and timestamps are normalized. Standard
-CRLF checkout text is restored to LF; committed source blobs stay exact. Custom
+destination. Repeated builds with the same source commit identity and identical
+selected source and replay files produce identical archive bytes: member order,
+ownership, modes and timestamps are normalized. HEAD is embedded in the manifest
+and generated runner, so a different commit changes the archive digest even when
+selected file contents match. Standard CRLF checkout text is restored to LF;
+committed source blobs stay exact. Custom
 Git clean/smudge filter transformations are unsupported and never invoked. Generated
 archives are ignored by Git. No .git, caches, environments, logs, credentials,
 assistant configuration or user data is selected.
