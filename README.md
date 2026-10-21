@@ -1,5 +1,7 @@
 # fanout-check
 
+![Concurrent in code. Overlapping in time? Check recorded intervals against an explicit timing contract. Illustrative workflow, not a benchmark. Overlap alone does not establish speedup.](docs/workflow.svg)
+
 **Catch “parallel” agent workflows that quietly run one call at a time.**
 
 A small, offline Python library and CLI for testing **observed overlap** in explicitly grouped tool or subagent calls. No API keys, model calls, telemetry, or runtime dependencies.
@@ -158,3 +160,4 @@ python -m compileall -q fanout_check
 ```
 
 [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
+
