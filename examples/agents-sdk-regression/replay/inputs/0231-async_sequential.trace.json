@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "clock": "monotonic",
+  "spans": [
+    {
+      "id": "1",
+      "name": "a",
+      "group": "batch",
+      "start_ns": 2885132,
+      "end_ns": 83140882,
+      "status": "ok"
+    },
+    {
+      "id": "2",
+      "name": "b",
+      "group": "batch",
+      "start_ns": 83249683,
+      "end_ns": 163480857,
+      "status": "ok"
+    },
+    {
+      "id": "3",
+      "name": "c",
+      "group": "batch",
+      "start_ns": 163570780,
+      "end_ns": 243824477,
+      "status": "ok"
+    }
+  ]
+}

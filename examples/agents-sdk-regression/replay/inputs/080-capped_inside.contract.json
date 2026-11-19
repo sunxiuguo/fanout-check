@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "name": "batch",
+      "members": [
+        "a",
+        "b",
+        "c"
+      ],
+      "min_peak": 2,
+      "max_peak": 2
+    }
+  ]
+}

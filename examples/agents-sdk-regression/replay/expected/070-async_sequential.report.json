@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "status": "fail",
+  "groups": [
+    {
+      "name": "batch",
+      "metrics": {
+        "calls": 3,
+        "peak": 1,
+        "group_ms": 240.941158,
+        "active_ms": 240.740872,
+        "work_ms": 240.740872,
+        "all_overlap_ms": 0.0,
+        "all_overlap_ratio": 0.0,
+        "launch_skew_ms": 160.691967,
+        "average_active_concurrency": 1.0,
+        "concurrency_ms": {
+          "0": 0.200286,
+          "1": 240.740872
+        }
+      }
+    }
+  ],
+  "findings": [
+    {
+      "code": "LIMIT_VIOLATION",
+      "group": "batch",
+      "path": "/groups/0/min_peak",
+      "metric": "peak",
+      "comparison": "minimum",
+      "expected": 3,
+      "actual": 1
+    }
+  ]
+}

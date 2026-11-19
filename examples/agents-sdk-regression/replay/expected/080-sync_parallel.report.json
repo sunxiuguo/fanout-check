@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "status": "pass",
+  "groups": [
+    {
+      "name": "batch",
+      "metrics": {
+        "calls": 3,
+        "peak": 3,
+        "group_ms": 80.610127,
+        "active_ms": 80.610127,
+        "work_ms": 240.517983,
+        "all_overlap_ms": 79.62914,
+        "all_overlap_ratio": 0.9940319613875518,
+        "launch_skew_ms": 0.502904,
+        "average_active_concurrency": 2.983719192006731,
+        "concurrency_ms": {
+          "1": 0.331411,
+          "2": 0.649576,
+          "3": 79.62914
+        }
+      }
+    }
+  ],
+  "findings": []
+}
